@@ -28,9 +28,9 @@ There is no intelligent system that can execute real software projects, analyze 
 
 3. Proposed Solution
 
-CodePilot AI is an autonomous AI-powered debugging and repair system designed to address this gap. It accepts a complete software project as input, executes it in a secure sandboxed environment, detects failures, generates fixes using generative AI, applies those fixes automatically, and validates the solution by re-running the project or test suite.
+AutoMend AI is an autonomous AI-powered debugging and repair system designed to address this gap. It accepts a complete software project as input, executes it in a secure sandboxed environment, detects failures, generates fixes using generative AI, applies those fixes automatically, and validates the solution by re-running the project or test suite.
 
-Unlike traditional AI assistants, CodePilot AI manages the entire debugging lifecycle, from execution to validation, while keeping humans in the loop for approval.
+Unlike traditional AI assistants, AutoMend AI manages the entire debugging lifecycle, from execution to validation, while keeping humans in the loop for approval.
 
 4. Objectives
 
@@ -105,7 +105,7 @@ Supporting Tools
 
 A user uploads a Python project that crashes due to a division-by-zero error.
 
-* CodePilot AI executes the program
+* AutoMend AI executes the program
 * Detects the runtime exception
 * Identifies the faulty logic
 * Generates a safe conditional fix
@@ -133,4 +133,4 @@ The user receives a fully repaired and validated project without manual debuggin
 
 10. One-Line Summary
 
-CodePilot AI is an autonomous GenAI system that executes real software projects, detects runtime failures, repairs code automatically using GPT-4, and validates fixes through re-execution.
+AutoMend AI is an autonomous GenAI system that executes real software projects, detects runtime failures, repairs code automatically using GPT-4, and validates fixes through re-execution.
