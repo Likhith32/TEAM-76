@@ -20,10 +20,22 @@ const useExecutionHook = () => {
 
       const result = await runProject(formData);
 
-      setExecution(result);
+      // ✅ GUARANTEE OUTPUT IS PRESERVED
+      setExecution({
+        ...result,
+        output: result.output || "",
+        last_error: result.last_error || null,
+        fixes: result.fixes || [],
+      });
+
       setStatus(result.status || "success");
     } catch (error) {
       setStatus("failed");
+      setExecution({
+        output: "",
+        last_error: error.message,
+        fixes: [],
+      });
       setLogs((prev) => [...prev, error.message]);
     }
   };
