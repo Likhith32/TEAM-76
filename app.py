@@ -1,6 +1,7 @@
 import os
 import threading
 import time
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -35,19 +36,19 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(get_config())
 
-    # Enable CORS
+    # Enable CORS (frontend → backend)
     CORS(
         app,
         resources={r"/api/*": {"origins": app.config.get("CORS_ORIGINS", "*")}},
         supports_credentials=True
     )
 
-    # Register APIs
+    # Register API routes
     app.register_blueprint(api_bp, url_prefix="/api")
 
-    # Health check
+    # Root health endpoint
     @app.route("/", methods=["GET"])
-    def health():
+    def root():
         return jsonify({
             "status": "running",
             "service": "AUTOMEND AI",
@@ -55,12 +56,24 @@ def create_app():
             "version": "1.0"
         })
 
+    # Optional health alias (useful for deployment)
+    @app.route("/health", methods=["GET"])
+    def health():
+        return jsonify({"status": "ok"})
+
     return app
 
 # ===============================
 # BACKGROUND CLEANUP THREAD
 # ===============================
 def start_cleanup_thread():
+    """
+    Starts cleanup thread only once.
+    Prevents duplicate threads in Flask debug reloader.
+    """
+    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+        return
+
     def cleanup_loop():
         while True:
             try:
@@ -79,6 +92,12 @@ start_cleanup_thread()
 
 if __name__ == "__main__":
     logger.info("🚀 Starting AUTOMEND AI Backend")
+    logger.info(
+        f"ENV={app.config.get('ENV')} | "
+        f"DEBUG={app.config.get('DEBUG')} | "
+        f"PORT={os.getenv('PORT', 5000)}"
+    )
+
     app.run(
         host="0.0.0.0",
         port=int(os.getenv("PORT", 5000)),

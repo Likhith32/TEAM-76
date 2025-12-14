@@ -35,8 +35,8 @@ runner_bp = Blueprint("runner", __name__)
 def runner_workflow(github_url=None, zip_file=None, run_mode="safe"):
     """
     run_mode:
-    - safe (default): block non-executable projects
-    - wrapper: AI creates a temporary execution wrapper
+    - safe    : block non-executable projects
+    - wrapper : AI-generated execution wrapper
     """
 
     # 1️⃣ Create isolated session
@@ -54,37 +54,29 @@ def runner_workflow(github_url=None, zip_file=None, run_mode="safe"):
     # 3️⃣ Security validation
     validate_project(project_path)
 
-    # 🚫 Block server-based projects early
+    # 🚫 Block server projects
     if is_server_project(project_path):
         return {
             "status": "failed",
-            "reason": "Web servers cannot be auto-run in AI Runner",
+            "reason": "Server applications cannot be auto-run safely",
             "hint": "Use Project Explainer instead"
         }
 
     # 🔍 Detect project type
     project_type = detect_python_project_type(project_path)
 
-    # 🔥 WRAPPER MODE (ALLOWED FOR NON-EXECUTABLE PROJECTS)
+    # 🔥 Wrapper mode for libraries
     if project_type != "executable" and run_mode == "wrapper":
-        from core.ai_wrapper import create_ai_wrapper
-
-        create_ai_wrapper(project_path)
-
-        execution = run_project(
-            project_path,
-            run_mode="wrapper",
-            entry_file="automend_runner.py"
-        )
+        execution = run_project(project_path, run_mode="wrapper")
 
         return {
             "status": "wrapper_executed",
-            "message": "AI created a temporary execution wrapper.",
+            "message": "AI generated a temporary execution wrapper.",
             "output": execution.get("stdout", ""),
             "zip_ready": True
         }
 
-    # ✅ FIXED: NON-EXECUTABLE PROJECT RESPONSE
+    # 🚫 Non-executable project (safe mode)
     if project_type != "executable":
         return {
             "status": "not_executable",
@@ -99,9 +91,10 @@ def runner_workflow(github_url=None, zip_file=None, run_mode="safe"):
     # 5️⃣ Install dependencies
     install_dependencies(project_path, language)
 
-    # 6️⃣ Normal execution
+    # 6️⃣ Execute project
     execution = run_project(project_path, run_mode=run_mode)
 
+    # ✅ Success on first run
     if execution.get("success"):
         return {
             "status": "success",
@@ -110,7 +103,14 @@ def runner_workflow(github_url=None, zip_file=None, run_mode="safe"):
             "output": execution.get("stdout", "")
         }
 
-    # 7️⃣ AI debug loop (EXECUTABLE ONLY)
+    # 🚫 Execution never really started → DO NOT AI DEBUG
+    if execution.get("status") == "not_executable":
+        return {
+            "status": "not_executable",
+            "message": execution.get("stderr", "")
+        }
+
+    # 🔥 REAL RUNTIME ERROR → AI DEBUG LOOP
     error_log = execution.get("stderr", "")
     fixes = []
 
@@ -136,7 +136,7 @@ def runner_workflow(github_url=None, zip_file=None, run_mode="safe"):
 
         error_log = rerun.get("stderr", "")
 
-    # 8️⃣ Final failure (REAL runtime failures only)
+    # ❌ Final failure after retries
     return {
         "status": "failed",
         "language": language,

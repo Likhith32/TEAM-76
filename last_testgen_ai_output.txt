@@ -3,18 +3,13 @@
 "files": {
 "test_example.py": """
 import pytest
-from your_project import example
+from execution.sessions.d6cdaa4d_8164_4443_bec8_ffe860c9c1c3\\project importable_function
 
-@pytest.mark.parametrize(
-    "input_value, expected_output",
-    [
-        (1, 2),
-        (2, 4),
-        (3, 6)
-    ]
-)
-def test_example(input_value, expected_output):
-    assert example(input_value) == expected_output
+@pytest.mark.parametrize("input_value, expected_output", [
+    (12345, 12345),
+    ("hello", "hello"),
+])
+def test_importable_function(input_value):
+    assert importable_function(input_value) == expected_output
 """
 }
-"""
