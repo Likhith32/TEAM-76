@@ -1,0 +1,20 @@
+{
+"framework": "pytest",
+"files": {
+"test_example.py": """
+import pytest
+from your_project import example
+
+@pytest.mark.parametrize(
+    "input_value, expected_output",
+    [
+        (1, 2),
+        (2, 4),
+        (3, 6)
+    ]
+)
+def test_example(input_value, expected_output):
+    assert example(input_value) == expected_output
+"""
+}
+"""
