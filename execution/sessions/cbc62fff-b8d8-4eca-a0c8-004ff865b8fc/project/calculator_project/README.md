@@ -1,1 +1,0 @@
-Simple calculator utility functions.
